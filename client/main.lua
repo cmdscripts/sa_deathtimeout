@@ -1,7 +1,7 @@
-ESX = exports["es_extended"]:getSharedObject()
+local ESX = exports["es_extended"]:getSharedObject()
 
-UiActive = false
-TimeSendServer = 0
+local UiActive = false
+local TimeSendServer = 0
 
 function SetDisplay(Time)
     if not UiActive then
@@ -22,9 +22,7 @@ end
 RegisterNetEvent('sa_deathtimeout:client:UpdateTimeOut')
 AddEventHandler('sa_deathtimeout:client:UpdateTimeOut', function(TimeSec)
     SetDisplay(TimeSec)
-    local Time = 0
-
-    TimeSendServer = 1000 
+    TimeSendServer = 1000 -- Reset the timer to prevent negative values
 end)
 
 RegisterNetEvent('sa_deathtimeout:client:RemoveTimeout')
@@ -44,8 +42,8 @@ end)
 
 Weapon = false
 
-CreateThread(function ()
-	while true do
+CreateThread(function()
+    while true do
         if TimeSendServer > 0 or UiActive then
             if not UiActive then
                 TimeSendServer = 0
@@ -53,13 +51,13 @@ CreateThread(function ()
             DisableControlAction(1, 37) -- TAB
             DisableControlAction(1, 24) -- Left Mouse
             DisableControlAction(1, 140) -- R
-			SetCurrentPedWeapon(PlayerPedId(), GetHashKey("WEAPON_UNARMED"), true) -- Set weapon on hands
+            SetCurrentPedWeapon(PlayerPedId(), GetHashKey("WEAPON_UNARMED"), true) -- Set weapon on hands
             TimeSendServer = TimeSendServer - 1
-        else 
+        else
             Wait(500)
         end
         Wait(1)
-	end
+    end
 end)
 
 RegisterCommand(Config.RemoveTimeoutRadius, function(source, args, rawCommand)
@@ -69,15 +67,15 @@ RegisterCommand(Config.RemoveTimeoutRadius, function(source, args, rawCommand)
                 local TmpPlayers = ESX.Game.GetPlayersInArea(GetEntityCoords(PlayerPedId()), tonumber(args[1]))
                 local Players = {}
 
-                for k,v in ipairs(TmpPlayers) do
+                for k, v in ipairs(TmpPlayers) do
                     table.insert(Players, GetPlayerServerId(v))
                 end
 
                 if next(Players) == nil then
-                     ESX.ShowNotification(Config.Locals['NoPlayers'])
+                    ESX.ShowNotification(Config.Locals['NoPlayers'])
                     return
                 end
-                
+
                 TriggerServerEvent('sa_deathtimeout:server:RemoveTimeoutFromPlayers', Players)
             else
                 ESX.ShowNotification(Config.Locals['EnterNumber'])
